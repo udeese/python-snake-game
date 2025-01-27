@@ -1,8 +1,26 @@
 import pygame
+import time
 import random
 
 # Initialize pygame
 pygame.init()
+
+# Load high score from a file
+def load_high_score():
+    try:
+        with open("highscore.txt", "r") as file:
+            return int(file.read())
+        except FileNotFoundError:
+            return 0
+    
+# Save high score to a file
+def save_high_score(score):
+    with open("highscore.txt", "w") as file:
+        file.write(str(score))
+
+# Initialize score
+score = 0
+high_score = load_high_score()
 
 # Screen size
 WIDTH, HEIGHT = 600, 400
@@ -23,6 +41,15 @@ RIGHT = (BLOCK_SIZE, 0)
 # Create window
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 pygame.display.set_caption("Snake Game")
+
+font = pygame.font.SysFont(None, 35)
+
+def show_score(score, high_score):
+    score_text = font.render(f"Score: {score} High Score: {high_score}", True, (255, 255, 255))
+    screen.blit(score_text, [10, 10]) #Draw at the top-left corner
+
+# Inside your game loop, call:
+show_score(score, high_score)
 
 # Snake setup
 snake = [(100, 100), (80, 100), (60, 100)]  # Initial snake body
@@ -63,6 +90,11 @@ while running:
     if new_head in snake or not (0 <= new_head[0] < WIDTH and 0 <= new_head[1] < HEIGHT):
         running = False  # Game over
     
+    if score > high_score:
+        high_score = score
+        save_high_score(high_score)
+    score = 0  # Reset score after game over
+
     # Add new head to snake
     snake.insert(0, new_head)
     
